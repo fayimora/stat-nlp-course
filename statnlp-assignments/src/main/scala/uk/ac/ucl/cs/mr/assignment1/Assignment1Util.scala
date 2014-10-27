@@ -54,7 +54,7 @@ object Assignment1Util {
    * @return all files in the directory, recursive.
    */
   def recursiveListFiles(f: File): Array[File] = {
-    val these = f.listFiles.filter(f => f.getName.endsWith(".txt") || f.isDirectory)
+    val these = f.listFiles
     these ++ these.filter(_.isDirectory).flatMap(recursiveListFiles)
   }
 
