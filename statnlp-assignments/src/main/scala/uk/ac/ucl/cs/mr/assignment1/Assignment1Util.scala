@@ -15,7 +15,7 @@ import scala.io.{Source, Codec}
 object Assignment1Util {
   /* Type aliases */
   type Counts = Map[NGram,Double]
-  type NGram = Seq[String]
+  type NGram = Seq[Token]
 
   /**
    * Converts a file into a tokenized and sentence segmented document
@@ -35,7 +35,18 @@ object Assignment1Util {
    * @param n n-gram order
    * @return n-grams in sentence
    */
-  def ngramsInSentence(sentence: Sentence, n: Int): Seq[NGram] = ???
+  def ngramsInSentence(sentence: Sentence, n: Int): Seq[NGram] = {
+     sentence.tokens.sliding(n).toSeq
+    /* Optional Recursive helper routine */
+//    def ngrams(currSentence: Sentence, grams: Seq[NGram]): Seq[NGram] = {
+//      if(currSentence.size <= n) grams
+//      else {
+//        val group = currSentence.tokens.slice(0, n).toSeq
+//        ngrams(Sentence(currSentence.tokens.tail), grams:+group)
+//      }
+//    }
+//    ngrams(sentence, Seq.empty)
+  }
 
   /**
    * Get all descendant files in the directory specified by f.
@@ -43,7 +54,7 @@ object Assignment1Util {
    * @return all files in the directory, recursive.
    */
   def recursiveListFiles(f: File): Array[File] = {
-    val these = f.listFiles
+    val these = f.listFiles.filter(f => f.getName.endsWith(".txt") || f.isDirectory)
     these ++ these.filter(_.isDirectory).flatMap(recursiveListFiles)
   }
 
@@ -54,7 +65,9 @@ object Assignment1Util {
    * @param count count to add
    * @return new map with count of ngram increased by count.
    */
-  def addNgramCount(counts: Counts, ngram: NGram, count: Double = 1.0): Counts = ???
+  def addNgramCount(counts: Counts, ngram: NGram, count: Double = 1.0): Counts = {
+    counts + (ngram -> counts.getOrElse(ngram, count))
+  }
 
   /**
    * Take two count maps, and add their counts
@@ -62,7 +75,9 @@ object Assignment1Util {
    * @param countsFew second count map
    * @return a map that maps each key in the union of keys of counts1 and counts2 to the sum of their counts.
    */
-  def addNgramCounts(countsMany: Counts, countsFew: Counts): Counts = ???
+  def addNgramCounts(countsMany: Counts, countsFew: Counts): Counts = {
+    countsMany ++ countsFew.map { case (k, v) => k -> (v + countsMany.getOrElse(k, 0.0)) }
+  }
 
   /**
    * Collect n-gram counts of a given order in the document
@@ -70,7 +85,13 @@ object Assignment1Util {
    * @param n the n-gram order.
    * @return a n-gram to count in document map
    */
-  def getNGramCounts(document: Document, n: Int): Counts = ???
+  def getNGramCounts(document: Document, n: Int): Counts = {
+    val doc: Seq[Seq[NGram]] = document.sentences.map(s => ngramsInSentence(s, n))
+    doc.flatMap(_.map(ng => addNgramCount(Map.empty, ng))) reduce addNgramCounts
+    // Cleaner implementation of the above line below
+    //val counts = for(sentence <- doc; ng <- sentence) yield addNgramCount(Map.empty, ng)
+    //counts.reduce(addNgramCounts)
+  }
 
   /**
    * For a given n-gram count map get the counts for n-1 grams.
