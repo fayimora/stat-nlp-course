@@ -15,7 +15,7 @@ import scala.io.{Source, Codec}
 object Assignment1Util {
   /* Type aliases */
   type Counts = Map[NGram,Double]
-  type NGram = Seq[Token]
+  type NGram = Seq[String]
 
   /**
    * Converts a file into a tokenized and sentence segmented document
@@ -36,16 +36,8 @@ object Assignment1Util {
    * @return n-grams in sentence
    */
   def ngramsInSentence(sentence: Sentence, n: Int): Seq[NGram] = {
-     sentence.tokens.sliding(n).toSeq
-    /* Optional Recursive helper routine */
-//    def ngrams(currSentence: Sentence, grams: Seq[NGram]): Seq[NGram] = {
-//      if(currSentence.size <= n) grams
-//      else {
-//        val group = currSentence.tokens.slice(0, n).toSeq
-//        ngrams(Sentence(currSentence.tokens.tail), grams:+group)
-//      }
-//    }
-//    ngrams(sentence, Seq.empty)
+    sentence.tokens.map(_.word).sliding(n).toSeq
+    // sentence.tokens.sliding(n).toSeq
   }
 
   /**
@@ -88,9 +80,6 @@ object Assignment1Util {
   def getNGramCounts(document: Document, n: Int): Counts = {
     val doc: Seq[Seq[NGram]] = document.sentences.map(s => ngramsInSentence(s, n))
     doc.flatMap(_.map(ng => addNgramCount(Map.empty, ng))) reduce addNgramCounts
-    // Cleaner implementation of the above line below
-    //val counts = for(sentence <- doc; ng <- sentence) yield addNgramCount(Map.empty, ng)
-    //counts.reduce(addNgramCounts)
   }
 
   /**
