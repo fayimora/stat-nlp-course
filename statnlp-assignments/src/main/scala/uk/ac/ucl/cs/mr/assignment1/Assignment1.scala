@@ -2,6 +2,7 @@ package uk.ac.ucl.cs.mr.assignment1
 
 import ml.wolfe.nlp.Document
 import java.io.File
+import ml.wolfe.nlp.{CharOffsets, Token, Document}
 
 /**
  * @author Sebastian Riedel
@@ -97,6 +98,10 @@ object Assignment1 {
   var countsTableCache: Map[Int, Counts] = Map.empty
   def main(args: Array[String]) {
     println("Hello, world!")
+    //val vocabulary = loadVocabulary("vocabulary.txt")
+    //val history = loadHistory("history.txt")
+    //serialize(lm, history, vocabulary, "output.txt")
+
     //todo
 
     // Load train data

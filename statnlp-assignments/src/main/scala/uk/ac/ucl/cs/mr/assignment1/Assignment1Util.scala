@@ -1,6 +1,7 @@
 package uk.ac.ucl.cs.mr.assignment1
 
 import java.io.{FileWriter, File}
+import java.io.{PrintWriter, File}
 
 import ml.wolfe.nlp.{Document, Sentence, Token, _}
 import org.json4s.NoTypeHints
@@ -109,6 +110,7 @@ object Assignment1Util {
     nMinus1FreqTable.groupBy(_._1).mapValues(_.map(_._2).sum)
   }
 
+<<<<<<< HEAD
   //will be provided soon, so nothing to do for you here
   def serialize(lm: LanguageModel, ngrams: Seq[NGram]) = {
     val dictionary: Seq[String] = loadVocab("")
@@ -125,10 +127,43 @@ object Assignment1Util {
         fw.write("")
       }
       finally fw.close()
-
-      //use read and write
+=======
+  // loads both the vocabulary and the history file, creates their
+  // cartesian product, gets the probability for the language model
+  // (account for possibly unknown words!) and saves it in a tab-separated
+  // file in the format: historyngram1 historyngram2 word probability
+  def serialize(lm: LanguageModel, history: Seq[NGram], vocabulary: Seq[String], filename: String) = {
+    val output = new PrintWriter(new File(filename))
+    try {
+      for {
+        ngram <- history
+        word <- vocabulary
+      } {
+        val probability = lm.prob(word, ngram) //what if the word you're searching for is not in your LM?
+        output.print("%s\t%s\t%s\t".format(ngram(0), ngram(1), word))
+        output.println(probability)
+      }
+    }
+    finally {
+      output.close()
     }
   }
+
+  // reads a vocabulary from a file
+  // the file is structured as a single vocabulary word per line
+  def loadVocabulary(filename: String): Seq[String] = {
+    val source = Source.fromFile(filename).getLines()
+    source.toSeq
+  }
+>>>>>>> 0b77ba395e27f54dd52297b8bbd01b15304c438f
+
+  // reads history (ngrams) from a file
+  // the file is structured as a tab-separated pair of words (2-gram) per line
+  def loadHistory(filename: String): Seq[NGram] = {
+    val source = Source.fromFile(filename).getLines()
+    source.map(_.split("\\t").toSeq).toSeq
+  }
+
 }
 
 
