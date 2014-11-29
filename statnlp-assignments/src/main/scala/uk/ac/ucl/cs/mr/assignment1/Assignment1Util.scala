@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.mr.assignment1
 
-import java.io.File
+import java.io.{FileWriter, File}
 
 import ml.wolfe.nlp.{Document, Sentence, Token, _}
 import org.json4s.NoTypeHints
@@ -36,7 +36,13 @@ object Assignment1Util {
    * @return n-grams in sentence
    */
   def ngramsInSentence(sentence: Sentence, n: Int): Seq[NGram] = {
-    sentence.tokens.map(_.word).sliding(n).toSeq
+    // generate the right number of sentence terminators and append/prepend
+    val startTerminators = for(i <- 1 to n-1) yield "<s>"
+    val endTerminators = for(i <- 1 to n-1) yield "</s>"
+    def isAllLetters(x: String) = x forall Character.isLetter
+    val words = sentence.tokens.map(_.word).filter{ w => !isAllLetters(w)}
+    ((startTerminators ++: words) ++ endTerminators).sliding(n).toSeq
+    // sentence.tokens.map(_.word).sliding(n).toSeq
     // sentence.tokens.sliding(n).toSeq
   }
 
@@ -79,7 +85,9 @@ object Assignment1Util {
    */
   def getNGramCounts(document: Document, n: Int): Counts = {
     val doc: Seq[Seq[NGram]] = document.sentences.map(s => ngramsInSentence(s, n))
-    doc.flatMap(_.map(ng => addNgramCount(Map.empty, ng))) reduce addNgramCounts
+    val counts: Seq[Counts] = doc.flatMap(_.map(ng => addNgramCount(Map.empty, ng)))
+    val res = counts.fold(Map.empty)(addNgramCounts)
+    res
   }
 
   /**
@@ -87,20 +95,36 @@ object Assignment1Util {
    * @param counts the n-gram counts
    * @return the n-1 gram counts.
    */
-  def getNMinus1Counts(counts: Counts): Counts = ???
+  def getNMinus1Counts(counts: Counts): Counts = {
+    // dropping the last token in the ngrams and counting would not be enough because we
+    // the counts we already have. To guard against this, we have to create a temp Seq[Tuple3
+    // where the third tuple is just a placeholder. THis way we can then create a Seq[Tuple2]
+    // that holds duplicate keys
 
-
+    // we need to first convert the map into a Seq[Tup3]
+    val tempCounts = for((k,v) <- counts) yield (k,v,1)
+    // now we drop the token to the left of the keys and yield a Seq[Tup2] freq table
+    val nMinus1FreqTable = for((ngram, count, one) <- tempCounts) yield (ngram.drop(1), count)
+    // group similar terms in the list by ngram and sum up the counts
+    nMinus1FreqTable.groupBy(_._1).mapValues(_.map(_._2).sum)
+  }
 
   //will be provided soon, so nothing to do for you here
   def serialize(lm: LanguageModel, ngrams: Seq[NGram]) = {
-    val dictionary: Seq[String] = ???
+    val dictionary: Seq[String] = loadVocab("")
 
     for {
       ngram <- ngrams
       word <- dictionary
     } {
-      lm.prob(word, ngram)
+      val p = lm.prob(word, ngram)
+
       //do serialization here
+      val fw = new FileWriter("challenge.txt", true)
+      try {
+        fw.write("")
+      }
+      finally fw.close()
 
       //use read and write
     }
