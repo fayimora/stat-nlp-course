@@ -110,7 +110,7 @@ object Assignment1Util {
     nMinus1FreqTable.groupBy(_._1).mapValues(_.map(_._2).sum)
   }
 
-<<<<<<< HEAD
+
   //will be provided soon, so nothing to do for you here
   def serialize(lm: LanguageModel, ngrams: Seq[NGram]) = {
     val dictionary: Seq[String] = loadVocab("")
@@ -127,7 +127,8 @@ object Assignment1Util {
         fw.write("")
       }
       finally fw.close()
-=======
+    }
+
   // loads both the vocabulary and the history file, creates their
   // cartesian product, gets the probability for the language model
   // (account for possibly unknown words!) and saves it in a tab-separated
@@ -155,7 +156,6 @@ object Assignment1Util {
     val source = Source.fromFile(filename).getLines()
     source.toSeq
   }
->>>>>>> 0b77ba395e27f54dd52297b8bbd01b15304c438f
 
   // reads history (ngrams) from a file
   // the file is structured as a tab-separated pair of words (2-gram) per line
