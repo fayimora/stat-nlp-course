@@ -113,7 +113,7 @@ object Assignment1Util {
 
   //will be provided soon, so nothing to do for you here
   def serialize(lm: LanguageModel, ngrams: Seq[NGram]) = {
-    val dictionary: Seq[String] = loadVocab("")
+    val dictionary: Seq[String] = loadVocabulary("")
 
     for {
       ngram <- ngrams
@@ -128,6 +128,7 @@ object Assignment1Util {
       }
       finally fw.close()
     }
+  }
 
   // loads both the vocabulary and the history file, creates their
   // cartesian product, gets the probability for the language model
