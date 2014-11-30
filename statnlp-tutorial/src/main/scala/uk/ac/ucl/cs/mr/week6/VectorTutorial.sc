@@ -21,7 +21,6 @@ f dot w //shorthand for f.dot(w)
 //what if you don't know the size of the feature space in advance?
 val fGrow = new GrowableSparseTensor1(Nil)
 fGrow._indices.max
-
 for {
   i <- 0 until 1000
   if rand.nextDouble() < 0.1
@@ -32,13 +31,10 @@ for {
 fGrow
 fGrow._indices.max
 
-
 //syntactic sugar
 type DenseVector = DenseTensor1
 type SparseVector = GrowableSparseTensor1
-
 val fNew = new SparseVector(Nil)
-
 //after collecting features we know how many weights we need
 val wNew = new DenseVector(fNew._indices.max)
 
