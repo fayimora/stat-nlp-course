@@ -53,10 +53,8 @@ class NaiveBayes(labelTokens: HashMap[String, ListBuffer[Token]],
     var prod = 1.0
     for(ft <- featureTemplates) {
       val tempVec = new SparseVector(Nil)
-      var i = 0
-      for(token <- tokens) {
+      for((token,i) <- tokens.zipWithIndex) {
         tempVec += (i, ft(token, label, candidate))
-        i = i+1
       }
       val p = tempVec.sum/tokens.size
       prod = prod * p
