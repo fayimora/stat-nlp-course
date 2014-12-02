@@ -14,7 +14,7 @@ class NaiveBayes(labelTokens: HashMap[String, ListBuffer[Token]],
   val candidate = if(labelTokens.keys.size > 3) "trigger" else "argument"
   val vocabulary = labelTokens.values.flatten.toSeq
 
-  def prob(token: Token, trueLabels: Seq[String]): Tuple2[String, Double] = {
+  def prob(token: Token, trueLabels: Seq[String]): (String, Double) = {
     val pLabels = trueLabels map probLabel
     val pWordLabels = trueLabels.map(l => probTokenLabel(token, l))
     val pFeatLabels = trueLabels map probFeatLabel
