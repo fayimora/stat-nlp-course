@@ -15,4 +15,12 @@ class LogLinearModel(weights: SparseVector,
     for((ft, i) <- featureTemplates.zipWithIndex) featVec += (i, ft(token, label, candidate))
     math.exp(featVec dot weights)
   }
+
+  def prob(token: Token, trueLabels: Seq[String]): (String, Double) = {
+    val candidate = if(trueLabels.size > 3) "trigger" else "argument"
+
+    val probabilities: Seq[Double] = trueLabels.map(l => prob(token, l, candidate))
+    val idx = probabilities.zipWithIndex.maxBy(_._1)._2
+    (trueLabels(idx), probabilities(idx))
+  }
 }
