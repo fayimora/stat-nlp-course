@@ -1,6 +1,6 @@
 package uk.ac.ucl.cs.mr.assignment2
 
-import cc.factorie.la.{GrowableSparseTensor1 => SparseVector}
+import cc.factorie.la.{GrowableSparseIndexedTensor1 => SparseVector}
 import ml.wolfe.nlp.Token
 import uk.ac.ucl.cs.mr.assignment2.LoadData.FeatureTemplate
 
@@ -39,7 +39,7 @@ class Perceptron(n: Double,
 //        reduce( (a,b) => (a._1+a._2)*(b._1+b._2) )
 
         val vec = new SparseVector(Nil)
-        for(x <- diff) vec += x
+        for((x,i) <- diff.zipWithIndex) vec += (i, x)
         weights = (weights + vec).asInstanceOf[SparseVector]
       }
     }
