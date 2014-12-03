@@ -10,6 +10,7 @@ import scala.collection.mutable.{ListBuffer, HashMap}
  * Created by fayimora on 01/12/14.
  */
 class Perceptron(n: Double,
+                 iterations: Int,
                  labelTokens: HashMap[String, ListBuffer[Token]],
                  featureTemplates: Seq[FeatureTemplate]) {
 
@@ -22,7 +23,8 @@ class Perceptron(n: Double,
 
     val data = for((l, toks) <- labelTokens.toSeq; t <- toks) yield (t, l)
     var converged = false
-    for(label <- labels; (tok, label) <- data if !converged) {
+    for(iter <- 1 to iterations;
+        (tok, label) <- data if !converged) {
       val llm = new LogLinearModel(weights, featureTemplates)
       val classes = labelTokens.keys.toList
       val idx = classes.map(c =>  llm.prob(tok, label, candidate)).zipWithIndex.maxBy(_._1)._2
@@ -34,8 +36,8 @@ class Perceptron(n: Double,
 //        val vec2 = new SparseVector(Nil)
 //        for (ft <- featureTemplates) vec1 += ft(tok, label, candidate)
 
-        val diff = featureTemplates.map(_(tok, label, candidate)).
-          zip(featureTemplates.map(_(tok, predLabel, candidate))).map(tup => tup._1 - tup._2)
+        val diff = featureTemplates.map(_(tok, predLabel, candidate)).
+          zip(featureTemplates.map(_(tok, label, candidate))).map(tup => tup._1 - tup._2)
 //        reduce( (a,b) => (a._1+a._2)*(b._1+b._2) )
 
         val vec = new SparseVector(Nil)
