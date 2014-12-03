@@ -17,8 +17,7 @@ class FeatureTemplates {
         case "Regulation" =>
           if (lemma == "regul") 1 else 0
         case "Positive_regulation" =>
-          if (word contains "regul") 1
-          else if (Seq("resulted", "increase") contains word) 1
+          if (Seq("resulted", "increase") contains word) 1
           else 0
         case "Negative_regulation" =>
           if (lemma == "down-regul") 1 else 0
