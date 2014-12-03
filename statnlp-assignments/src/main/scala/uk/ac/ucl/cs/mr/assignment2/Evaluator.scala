@@ -35,9 +35,10 @@ class Evaluator(predictedLabels: Seq[String], trueLabels: Seq[String]) {
   def accuracy(label: String): Double = {
     var nLabels = 0
     var nCorrectLabels = 0
-    for((pred, gold) <- zippedLabels if gold == label) {
-      if(pred==gold) nCorrectLabels += 1
-      nLabels += 1
+    for((pred, gold) <- zippedLabels) {
+      if(pred != label && pred==gold) nCorrectLabels += 1
+      if(gold != label) nLabels += 1
+//      nLabels += 1
     }
     (nCorrectLabels/nLabels.toDouble) * 100
   }
