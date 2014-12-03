@@ -23,27 +23,27 @@ class Perceptron(n: Double,
 
     val data = for((l, toks) <- labelTokens.toSeq; t <- toks) yield (t, l)
     var converged = false
-    for(iter <- 1 to iterations;
-        (tok, label) <- data if !converged) {
-      val llm = new LogLinearModel(weights, featureTemplates)
-      val classes = labelTokens.keys.toList
-      val idx = classes.map(c =>  llm.prob(tok, label, candidate)).zipWithIndex.maxBy(_._1)._2
-      val predLabel = classes(idx)
+    for(iter <- 1 to iterations if !converged) {
+      println(s"\nIteration: $iter\nWeights: ${weights._values.toSeq}")
+      for((tok, label) <- data if !converged)
+      {
+        val llm = new LogLinearModel(weights, featureTemplates)
+        val classes = labelTokens.keys.toList
+        val idx = classes.map(c => llm.prob(tok, label, candidate)).zipWithIndex.maxBy(_._1)._2
+        val predLabel = classes(idx)
+        println(s"Predicted Label: $predLabel\nTrue Label: $label")
 
-      if(predLabel != label) {
-//        val vec1 = new SparseVector(Nil)
-//        for (ft <- featureTemplates) vec1 += ft(tok, predLabel, candidate)
-//        val vec2 = new SparseVector(Nil)
-//        for (ft <- featureTemplates) vec1 += ft(tok, label, candidate)
+        if (predLabel != label) {
 
-        val diff = featureTemplates.map(_(tok, predLabel, candidate)).
-          zip(featureTemplates.map(_(tok, label, candidate))).map(tup => tup._1 - tup._2)
-//        reduce( (a,b) => (a._1+a._2)*(b._1+b._2) )
+          val diff = featureTemplates.map(_(tok, predLabel, candidate)).
+            zip(featureTemplates.map(_(tok, label, candidate))).map(tup => tup._1 - tup._2)
+          //        reduce( (a,b) => (a._1+a._2)*(b._1+b._2) )
 
-        val vec = new SparseVector(Nil)
-        for((x,i) <- diff.zipWithIndex) vec += (i, x)
-        weights = (weights + vec).asInstanceOf[SparseVector]
-      } else converged = true
+          val vec = new SparseVector(Nil)
+          for ((x, i) <- diff.zipWithIndex) vec +=(i, x)
+          weights = (weights + vec).asInstanceOf[SparseVector]
+        } else converged = true
+      }
     }
     weights
   }
