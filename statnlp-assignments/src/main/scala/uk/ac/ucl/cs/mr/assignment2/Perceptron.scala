@@ -15,7 +15,7 @@ class Perceptron(n: Double,
 
   val candidate = if(labelTokens.keys.size > 3) "trigger" else "argument"
 
-  def train(labels: Seq[String], data: Seq[String]): SparseVector = {
+  def train(labels: Seq[String]): SparseVector = {
 
     var weights = new SparseVector(Nil)
     for(i <- 1 to 10) weights += (i, n)
