@@ -21,8 +21,8 @@ class Perceptron(n: Double,
     for(i <- 1 to 10) weights += (i, n)
 
     val data = for((l, toks) <- labelTokens.toSeq; t <- toks) yield (t, l)
-
-    for(label <- labels; (tok, label) <- data) {
+    var converged = false
+    for(label <- labels; (tok, label) <- data if !converged) {
       val llm = new LogLinearModel(weights, featureTemplates)
       val classes = labelTokens.keys.toList
       val idx = classes.map(c =>  llm.prob(tok, label, candidate)).zipWithIndex.maxBy(_._1)._2
@@ -41,7 +41,7 @@ class Perceptron(n: Double,
         val vec = new SparseVector(Nil)
         for((x,i) <- diff.zipWithIndex) vec += (i, x)
         weights = (weights + vec).asInstanceOf[SparseVector]
-      }
+      } else converged = true
     }
     weights
   }
