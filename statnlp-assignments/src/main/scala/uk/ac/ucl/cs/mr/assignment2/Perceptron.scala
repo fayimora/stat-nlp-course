@@ -10,6 +10,7 @@ import scala.collection.mutable.{ListBuffer, HashMap}
  * Created by fayimora on 01/12/14.
  */
 class Perceptron(n: Double,
+                 alpha: Double,
                  iterations: Int,
                  labelTokens: HashMap[String, ListBuffer[Token]],
                  featureTemplates: Seq[FeatureTemplate]) {
@@ -23,26 +24,26 @@ class Perceptron(n: Double,
 
     val data = for((l, toks) <- labelTokens.toSeq; t <- toks) yield (t, l)
     var converged = false
-    for(iter <- 1 to iterations if !converged) {
-      println(s"\nIteration: $iter\nWeights: ${weights._values.toSeq}")
-      for((tok, label) <- data if !converged)
+    for(iter <- 1 to iterations) {
+//      println(s"\nIteration: $iter\nWeights: ${weights._values.toSeq}")
+      for((tok, label) <- data)
       {
         val llm = new LogLinearModel(weights, featureTemplates)
         val classes = labelTokens.keys.toList
         val idx = classes.map(c => llm.prob(tok, label, candidate)).zipWithIndex.maxBy(_._1)._2
         val predLabel = classes(idx)
-        println(s"Predicted Label: $predLabel\nTrue Label: $label")
+//        println(s"Predicted Label: $predLabel\nTrue Label: $label")
 
         if (predLabel != label) {
 
           val diff = featureTemplates.map(_(tok, predLabel, candidate)).
-            zip(featureTemplates.map(_(tok, label, candidate))).map(tup => tup._1 - tup._2)
+            zip(featureTemplates.map(_(tok, label, candidate))).map(tup => (tup._1*alpha) - tup._2)
           //        reduce( (a,b) => (a._1+a._2)*(b._1+b._2) )
 
           val vec = new SparseVector(Nil)
           for ((x, i) <- diff.zipWithIndex) vec +=(i, x)
           weights = (weights + vec).asInstanceOf[SparseVector]
-        } else converged = true
+        }
       }
     }
     weights
