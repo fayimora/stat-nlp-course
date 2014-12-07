@@ -7,30 +7,34 @@ import ml.wolfe.nlp.Token
  */
 class FeatureTemplates {
 
+  /**
+   * Feature 1, take advantage of lemmas in token distribution
+   */
   def template1(token: Token, label: String, e: String): Int = {
     val word = token.word.toLowerCase
     val lemma = token.lemma.toLowerCase
     e match {
       case "trigger" => label match {
         case "None" =>
-          if (LoadData.stop_words contains word) 1 else 0
+          if (LoadData.stop_words contains word) 1 else -1
         case "Regulation" =>
-          if (lemma == "regul") 1 else 0
+          if (Seq("regul", "effect", "affect", "control") contains lemma) 1 else 0
+//          if (lemma == "regul") 1 else 0
         case "Positive_regulation" =>
-          if (Seq("resulted", "increase") contains word) 1
+          if (Seq("activ","increas", "induct") contains lemma) 1
           else 0
         case "Negative_regulation" =>
-          if (lemma == "down-regul") 1 else 0
+          if (Seq("down-regul", "inhibit", "reduc") contains lemma) 1 else 0
         case "Binding" =>
-          if (lemma == "bind") 1 else 0
+          if (Seq("bind", "interact") contains lemma) 1 else 0
         case "Phosphorylation" =>
           if (lemma == "phosphoryl") 1 else 0
         case "Localization" =>
-          if (lemma == "local" || lemma == "secret") 1 else 0
+          if (Seq("local", "secret") contains lemma) 1 else 0
         case "Protein_catabolism" =>
           if (lemma == "degrad") 1 else 0
         case "Transcription" =>
-          if (lemma == "transcript") 1 else 0
+          if (Seq("transcript", "express", "level") contains lemma) 1 else 0
         case "Gene_expression" =>
           if(lemma == "express") 1 else 0
       }
@@ -44,7 +48,111 @@ class FeatureTemplates {
     }
   }
 
+
+  /**
+   * Feature 2, take advantage of token distribution
+   */
   def template2(token: Token, label: String, e: String) = {
+    val word = token.word.toLowerCase
+    val lemma = token.lemma.toLowerCase
+    e match {
+      case "trigger" => label match {
+        case "None" => 0
+        case "Regulation" =>
+          if (Seq("role", "regulation") contains word) 1 else 0
+        case "Positive_regulation" =>
+          if (Seq("activation","induction", "overexpression", "induced", "upregulation") contains word) 1
+          else 0
+        case "Negative_regulation" =>
+          if (Seq("inhibited", "reduced", "decreased", "blocked", "suppressed", "absense", "loss") contains word) 1 else 0
+        case "Binding" =>
+          if (Seq("binding", "interaction", "litigation", "ligation", "cross-linking") contains word) 1 else 0
+        case "Phosphorylation" =>
+          if (lemma == "phosphoryl") 1 else 0
+        case "Localization" =>
+          if (Seq("translocation", "localization", "secretion") contains word) 1 else 0
+        case "Protein_catabolism" =>
+          if (lemma == "degrad") 1 else 0
+        case "Phosphorylation" =>
+          if (Seq("phosphorylation", "underphosphorylated", "hyperphosphorylated", "phosphoform") contains word) 1 else -1
+        case "Protein_catabolism" =>
+          if (Seq("proteolysis", "degradation", "cleavage") contains word) 1 else 0
+        case "Transcription" =>
+          if (Seq("transcription", "levels", "synthesis") contains word) 1 else 0
+        case "Gene_expression" =>
+          if (Seq("expression", "production", "overexpression", "synthesis") contains word) 1 else 0
+      }
+      case "argument" => label match {
+        case "None" => 0
+        case "Theme" => 1
+          if (word contains '-') 1 else 0
+        case "Cause" => 1
+//          if (Seq() contains word) 1 else 0 //major class
+      }
+    }
+  }
+
+  def template3(token: Token, label: String, e: String) = {
+    val word = token.word.toLowerCase
+    val lemma = token.lemma.toLowerCase
+    val pos = token.posTag
+    e match {
+      case "trigger" => label match {
+        //case "None" =>  -2
+        case "Regulation" =>
+          if(pos.contains("NN") || pos.contains("VB") || pos.contains("JJ")) 1 else -1
+        case "Positive_regulation" =>
+          if(pos.contains("NN") || pos.contains("VB") || pos.contains("JJ")) 1 else -1
+        case "Negative_regulation" =>
+          if(pos.contains("NN") || pos.contains("VB") || pos.contains("JJ")) 1 else -1
+        case _ => 0
+      }
+      case "argument" => label match {
+        //case "None" => ???
+        case "Theme" =>
+          if (pos=="JJ" || pos=="NNS") 1 else 0
+        case "Cause" =>
+          if (pos=="NN" || pos=="DT") 1 else 0
+        case _ => 0
+      }
+    }
+  }
+
+  def template4(token: Token, label: String, e: String) = {
+    val word = token.word.toLowerCase
+    val lemma = token.lemma.toLowerCase
+    val pos = token.posTag
+    e match {
+      case "trigger" => label match {
+        case "Regulation" =>
+          if(!(Seq("EX", "RBS", "RP", "WP") contains pos)) 1 else 0
+        case "Positive_regulation" =>
+          if (!(Seq("RP", "EX", "RBS") contains pos)) 1 else 0
+        case "Negative_regulation" =>
+          if (!(Seq("EX", "WP", "PDT") contains pos)) 1 else 0
+        case "Binding" =>
+          if (!(Seq("WP$","RP", "EX", "WP", "PDT", "NNP") contains pos)) 1 else 0
+        case "Phosphorylation" =>
+          if (!(Seq("EX", "NNP", "RBR", "LS", "POS", "WP$", "WP", "RP", "PDT", "JJR", "POS", "RBS") contains pos)) 1 else 0
+        case "Localization" =>
+          if (!(Seq("WP", "PDT", "JJS", "WP$", "WP", "RP", "EX", "PDT", "JJR", "POS", "RBS") contains pos)) 1 else 0
+        case "Protein_catabolism" =>
+          if (!(Seq("JJR", "EX", "PDT", "NNP", "LS", "POS", "WP$", "RP", "WRB", "WP", "RBS", "FW", "JJS", "RBR") contains pos)) 1 else 0
+        case "Transcription" =>
+          if (!(Seq("PDT", "RP", "EX", "WP", "RBS") contains pos)) 1 else 0
+        case "Gene_expression" =>
+          if (!(Seq("PDT", "WP$") contains pos)) 1 else 0
+        case _ => 0
+      }
+      case "argument" => label match {
+        case "Cause" =>
+          if (!(Seq("EX", "RBS", "RP", "WP", "WP$") contains pos)) 1 else 0
+        case _ => 0
+      }
+    }
+  }
+
+  def template(token: Token, label: String, e: String) = {
     val word = token.word.toLowerCase
     val lemma = token.lemma.toLowerCase
     e match {
