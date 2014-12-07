@@ -8,7 +8,7 @@ import uk.ac.ucl.cs.mr.assignment2.LoadData.FeatureTemplate
  * Created by fayimora on 02/12/14.
  */
 class LogLinearModel(weights: SparseVector,
-                     featureTemplates: Seq[FeatureTemplate]) {
+                     featureTemplates: Seq[FeatureTemplate]) extends Model {
 
   def prob(token: Token, label: String, candidate: String): Double = {
     val featVec = new SparseVector(Nil)
@@ -16,6 +16,12 @@ class LogLinearModel(weights: SparseVector,
     math.exp(featVec dot weights)
   }
 
+  /**
+   * This function is used during prediction. It returns a tuple of (predictedLabel, likelihood)
+   * @param token
+   * @param trueLabels
+   * @return
+   */
   def prob(token: Token, trueLabels: Seq[String]): (String, Double) = {
     val candidate = if(trueLabels.size > 3) "trigger" else "argument"
 

@@ -9,7 +9,7 @@ import cc.factorie.la.{GrowableSparseTensor1 => SparseVector}
  * Created by fayimora on 30/11/14.
  */
 class NaiveBayes(labelTokens: HashMap[String, ListBuffer[Token]],
-                 featureTemplates: Seq[FeatureTemplate]) {
+                 featureTemplates: Seq[FeatureTemplate]) extends Model {
 
   val candidate = if(labelTokens.keys.size > 3) "trigger" else "argument"
   val vocabulary = labelTokens.values.flatten.toSeq
